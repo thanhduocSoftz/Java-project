@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
     private static final String MAX_ATTRIBUTE = "max";
+
     @SuppressWarnings("rawtypes")
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handleException(Exception exception) {
         ErrorCode errCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
         log.error("Uncategorized error", exception);
         return ResponseEntity.status(errCode.getStatusCode()).body(
-                ApiResponse.builder().code(errCode.getCode()).message(errCode.getMessage()).build()
-        );
+                ApiResponse.builder().code(errCode.getCode()).message(errCode.getMessage()).build());
     }
 
     @SuppressWarnings({ "rawtypes", "null", "unchecked" })
@@ -35,33 +35,30 @@ public class GlobalExceptionHandler {
 
         ErrorCode errorCode = ErrorCode.MISSING_MESSAGE_KEY;
         String messageKey = exception.getFieldError()
-        .getDefaultMessage();
+                .getDefaultMessage();
         Map<String, Object> attributes = new HashMap<>();
         try {
             errorCode = ErrorCode.valueOf(messageKey);
 
-             var constraintViolation =
-                    exception.getBindingResult()
-                            .getAllErrors()
-                            .getFirst()
-                            .unwrap(ConstraintViolation.class);
+            var constraintViolation = exception.getBindingResult()
+                    .getAllErrors()
+                    .getFirst()
+                    .unwrap(ConstraintViolation.class);
 
-            attributes = constraintViolation.
-                    getConstraintDescriptor()
+            attributes = constraintViolation.getConstraintDescriptor()
                     .getAttributes();
-        } 
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             log.error("Invalid message key: ", e);
         }
         String message = mapAttribute(errorCode.getMessage(), attributes);
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .code(errorCode.getCode())
-                    .message(message)
-                    .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(message)
+                .build();
 
-            return ResponseEntity
-                    .status(errorCode.getStatusCode())
-                    .body(apiResponse);
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(apiResponse);
     }
 
     @SuppressWarnings("rawtypes")
@@ -83,7 +80,6 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
-    
     private String mapAttribute(String message, Map<String, Object> attributes) {
         String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
         String maxValue = String.valueOf(attributes.get(MAX_ATTRIBUTE));

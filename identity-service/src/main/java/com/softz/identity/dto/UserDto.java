@@ -1,7 +1,7 @@
 package com.softz.identity.dto;
 
 import java.time.LocalDate;
-
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +12,9 @@ public class UserDto {
     private String username;
     private String firstName;
     private String lastName;
+    private String email;
     private LocalDate dob;
+    private List<RoleDto> roles;
+
     
 }

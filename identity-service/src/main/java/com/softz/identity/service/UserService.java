@@ -3,6 +3,7 @@ package com.softz.identity.service;
 import com.softz.identity.dto.UserDto;
 import com.softz.identity.dto.request.NewUserRequest;
 import com.softz.identity.dto.request.UpdateUserRequest;
+import com.softz.identity.entity.Role;
 import com.softz.identity.entity.User;
 import com.softz.identity.exception.AppException;
 import com.softz.identity.exception.ErrorCode;
@@ -18,23 +19,29 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
+    UserRolesCoordinatorService roleCoordinateService;
     UserRepository userRepository;
     UserMapper userMapper;
 
-    public UserDto createUser(NewUserRequest newUserRequest) {
-        // Mapping to User entity
-        User user = userMapper.toUser(newUserRequest);
+    public UserDto createUser(NewUserRequest userRequest) {
         try {
-            user = userRepository.save(user);
+            List<Role> roles = roleCoordinateService.roleService.findByIdIn(userRequest.getRoles());
+            if (!roles.isEmpty() && userRequest.getRoles().size() != roles.size()) {
+                throw new AppException(ErrorCode.INVALID_INPUT);
+            }
+
+            User user = userMapper.toUser(userRequest);
+            user.setRoles(Set.copyOf(roles));
+            return userMapper.toUserDto(userRepository.save(user));
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-        return userMapper.toUserDto(user);
     }
 
     public UserDto getUserById(String userId) {
