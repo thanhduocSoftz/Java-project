@@ -11,6 +11,7 @@ import com.softz.identity.repository.PermissionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,45 +23,39 @@ public class PermissionService {
     PermissionRepository permissionRepository;
     PermissionMapper permissionMapper;
 
-    public PermissionDto createPermission(NewPermissionRequest permissionRequest) {
-        try {
-            return permissionMapper.toPermissionDto(permissionRepository.save(permissionMapper.toPermission(permissionRequest)));
-        } catch (Exception e ) {
-            throw new AppException(ErrorCode.PERMISSION_EXIST);
-        }
+    @PreAuthorize("hasRole('ADMIN')")
+    public PermissionDto createPermission(NewPermissionRequest request) {
+        Permission permission = permissionMapper.toPermission(request);
+        permission = permissionRepository.save(permission);
+
+        return permissionMapper.toPermissionDto(permission);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PermissionDto> getPermissions() {
         return permissionRepository.findAll()
                 .stream()
                 .map(permissionMapper::toPermissionDto)
                 .toList();
     }
-    public List<Permission> findByIdIn(List<Integer> permissions) {
-        return permissionRepository.findByIdIn(permissions);
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public PermissionDto updatePermission(int id, UpdatePermissionRequest request) {
+        var permission = permissionRepository.findById(id).orElseThrow(
+                () -> new AppException(ErrorCode.PERMISSION_NOT_FOUND));
+
+        permissionMapper.updatePermission(permission, request);
+
+        return permissionMapper.toPermissionDto(permissionRepository.save(permission));
     }
 
-
-
-    public PermissionDto getPermissionById(int id) {
-        return permissionMapper.toPermissionDto(permissionRepository.findById(id).orElseThrow(
-                ()->new AppException(ErrorCode.PERMISSION_NOT_FOUND, String.valueOf(id))
-        ));
-    }
-
-    public PermissionDto updatePermission(UpdatePermissionRequest permissionRequest) {
-        try {
-            return permissionMapper.toPermissionDto(permissionRepository.save(permissionMapper.toPermission(permissionRequest)));
-        } catch (Exception e ) {
-            throw new AppException(ErrorCode.PERMISSION_EXIST);
-        }
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     public void deletePermission(int id) {
-        try {
-            permissionRepository.deleteById(id);
-        } catch (Exception e ) {
-            throw new AppException(ErrorCode.PERMISSION_EXIST);
-        }
+        permissionRepository.deleteById(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Permission> getPermissions(List<Integer> permissions) {
+        return permissionRepository.findByIdIn(permissions);
     }
 }

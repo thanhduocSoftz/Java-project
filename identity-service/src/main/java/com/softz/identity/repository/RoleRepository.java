@@ -1,11 +1,13 @@
 package com.softz.identity.repository;
 
 import com.softz.identity.entity.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface RoleRepository extends JpaRepository<Role, String> {
-    List<Role> findByIdIn(List<Integer> ids);
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Integer> {
+    List<Role> findByIdIn(Collection<Integer> ids);
 }

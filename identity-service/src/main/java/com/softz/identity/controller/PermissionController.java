@@ -48,7 +48,7 @@ public class PermissionController {
     ApiResponse<PermissionDto> updatePermission(
             @PathVariable int id,
             @RequestBody UpdatePermissionRequest request){
-        var result = permissionService.updatePermission(request);
+        var result = permissionService.updatePermission(id, request);
         return ApiResponse.<PermissionDto>builder()
                 .result(result)
                 .build();

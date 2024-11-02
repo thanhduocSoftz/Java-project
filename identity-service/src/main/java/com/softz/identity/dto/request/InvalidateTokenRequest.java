@@ -1,13 +1,14 @@
 package com.softz.identity.dto.request;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpdatePermissionRequest {
-    String description;
+public class InvalidateTokenRequest {
+    String token;
 }
