@@ -1,5 +1,17 @@
 package com.softz.identity.util;
 
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -8,20 +20,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.softz.identity.entity.User;
 import com.softz.identity.exception.AppException;
 import com.softz.identity.exception.ErrorCode;
-
 import com.softz.identity.repository.InvalidatedTokenRepository;
-import org.checkerframework.checker.signedness.qual.Signed;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
 
 @Component
 public class JwtService {
@@ -37,30 +36,29 @@ public class JwtService {
     @Autowired
     InvalidatedTokenRepository invalidatedTokenRepository;
 
-    public TokenInfor extractToken(String token){
+    public TokenInfor extractToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
 
-        JWSVerifier jwsVerifier = new MACVerifier(tokenKey.getBytes());
-        
-        if (signedJWT.getJWTClaimsSet()
-                .getExpirationTime().before(new Date())) {
-            return null;
-        }
+            JWSVerifier jwsVerifier = new MACVerifier(tokenKey.getBytes());
 
-        if(!signedJWT.verify(jwsVerifier)){
-            return null;
-        }
-        
-        return new TokenInfor(signedJWT.getJWTClaimsSet().getJWTID(), 
-        signedJWT.getJWTClaimsSet().getExpirationTime().toInstant());
+            if (signedJWT.getJWTClaimsSet().getExpirationTime().before(new Date())) {
+                return null;
+            }
+
+            if (!signedJWT.verify(jwsVerifier)) {
+                return null;
+            }
+
+            return new TokenInfor(
+                    signedJWT.getJWTClaimsSet().getJWTID(),
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant());
         } catch (ParseException | JOSEException e) {
             return null;
         }
-    } 
-
-    public record TokenInfor(String jti, Instant expiryTime) {
     }
+
+    public record TokenInfor(String jti, Instant expiryTime) {}
 
     public SignedJWT introspect(String token) {
         try {
@@ -70,8 +68,7 @@ public class JwtService {
             // Init JWS Verifier
             JWSVerifier jwsVerifier = new MACVerifier(tokenKey.getBytes());
 
-            if (signedJWT.getJWTClaimsSet()
-                    .getExpirationTime().before(new Date())) {
+            if (signedJWT.getJWTClaimsSet().getExpirationTime().before(new Date())) {
                 throw new AppException(ErrorCode.UNAUTHENTICATED);
             }
 
@@ -99,8 +96,7 @@ public class JwtService {
             // Init JWS Verifier
             JWSVerifier jwsVerifier = new MACVerifier(tokenKey.getBytes());
 
-            if (signedJWT.getJWTClaimsSet()
-                    .getExpirationTime().before(new Date())) {
+            if (signedJWT.getJWTClaimsSet().getExpirationTime().before(new Date())) {
                 throw new AppException(ErrorCode.UNAUTHENTICATED);
             }
 
@@ -120,9 +116,8 @@ public class JwtService {
                 .subject(user.getUsername())
                 .claim("userId", user.getId())
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now()
-                                .plus(ttl, ChronoUnit.SECONDS)
-                                .toEpochMilli()))
+                .expirationTime(
+                        new Date(Instant.now().plus(ttl, ChronoUnit.SECONDS).toEpochMilli()))
                 .claim("scope", buildScope(user))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
@@ -134,8 +129,7 @@ public class JwtService {
 
         // Sign token
         try {
-            JWSSigner jwsSigner =
-                    new MACSigner(tokenKey.getBytes());
+            JWSSigner jwsSigner = new MACSigner(tokenKey.getBytes());
 
             jwsObject.sign(jwsSigner);
 
@@ -146,17 +140,14 @@ public class JwtService {
     }
 
     private String buildScope(User user) {
-        if (CollectionUtils.isEmpty(user.getRoles()))
-            return "";
+        if (CollectionUtils.isEmpty(user.getRoles())) return "";
 
         StringJoiner stringJoiner = new StringJoiner(" ");
 
         user.getRoles().forEach(role -> {
             stringJoiner.add(String.format("ROLE_%s", role.getName()));
             if (!CollectionUtils.isEmpty(role.getPermissions())) {
-                role.getPermissions()
-                        .forEach(permission ->
-                                stringJoiner.add(permission.getName()));
+                role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
             }
         });
 

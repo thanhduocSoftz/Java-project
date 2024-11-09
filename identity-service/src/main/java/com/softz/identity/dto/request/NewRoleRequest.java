@@ -1,11 +1,11 @@
 package com.softz.identity.dto.request;
 
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Getter
 @Setter

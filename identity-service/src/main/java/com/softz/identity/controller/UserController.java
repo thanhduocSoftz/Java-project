@@ -1,21 +1,21 @@
 package com.softz.identity.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.*;
+
 import com.softz.identity.dto.ApiResponse;
+import com.softz.identity.dto.PageData;
 import com.softz.identity.dto.UserDto;
 import com.softz.identity.dto.request.NewUserRequest;
 import com.softz.identity.entity.User;
 import com.softz.identity.service.UserService;
 import com.softz.identity.service.coordinator.UserCoordinatorService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,11 +31,16 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ApiResponse<List<UserDto>> getUsers() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ApiResponse<PageData<UserDto>> getUsers(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        // Authentication authentication = SecurityContextHolder.
+        // getContext().
+        // getAuthentication();
 
-        List<UserDto> users = userService.getUsers();
-        return ApiResponse.<List<UserDto>>builder().result(users).build();
+        PageData<UserDto> users = userService.getUsers(page, size, keyword);
+        return ApiResponse.<PageData<UserDto>>builder().result(users).build();
     }
 
     @GetMapping("/users/{id}")
@@ -46,5 +51,11 @@ public class UserController {
     @GetMapping("/users/filter")
     public User getUserByUsername(@Param("username") String username) {
         return userService.getUserByUsername(username);
+    }
+
+    @GetMapping("/users/me")
+    public ApiResponse<UserDto> getMyProfile() {
+        UserDto userDto = userService.getMyProfile();
+        return ApiResponse.<UserDto>builder().result(userDto).build();
     }
 }

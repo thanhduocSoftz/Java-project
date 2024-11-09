@@ -1,12 +1,13 @@
 package com.softz.identity.configuration;
 
-import com.nimbusds.jwt.SignedJWT;
-import com.softz.identity.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
+
+import com.nimbusds.jwt.SignedJWT;
+import com.softz.identity.util.JwtService;
 
 @Component
 public class JwtCustomDecoder implements JwtDecoder {
@@ -23,8 +24,7 @@ public class JwtCustomDecoder implements JwtDecoder {
                     signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
                     signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
                     signedJWT.getHeader().toJSONObject(),
-                    signedJWT.getJWTClaimsSet().toJSONObject()
-            );
+                    signedJWT.getJWTClaimsSet().toJSONObject());
         } catch (Exception exception) {
             throw new JwtException("Invalid token");
         }

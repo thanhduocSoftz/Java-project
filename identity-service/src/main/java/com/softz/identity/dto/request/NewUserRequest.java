@@ -1,20 +1,23 @@
 package com.softz.identity.dto.request;
 
-import com.softz.identity.validator.DobConstraint;
+import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.softz.identity.validator.DobConstraint;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
 public class NewUserRequest {
     @Size(min = 3, max = 10, message = "INVALID_USERNAME")
     private String username;
+
     private String password;
 
     @Email(message = "INVALID_EMAIL_ADDRESS")

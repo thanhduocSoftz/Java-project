@@ -1,13 +1,13 @@
 package com.softz.identity.exception;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
+import lombok.Getter;
+
 @Getter
 public enum ErrorCode {
-    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error",
-            HttpStatus.INTERNAL_SERVER_ERROR),
+    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_INPUT(9000, "Invalid input", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(9401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(9403, "UnAuthorized", HttpStatus.FORBIDDEN),
@@ -26,8 +26,7 @@ public enum ErrorCode {
     ROLE_CONTAINS_DUPLICATED_ITEM(100105, "Role contains duplicated item(s)", HttpStatus.BAD_REQUEST),
     ROLE_CONTAINS_INVALID_ITEM(100105, "Role contains invalid item(s)", HttpStatus.BAD_REQUEST),
     FIELD_EXISTED(100105, "Field existed %s with value %s", HttpStatus.BAD_REQUEST),
-    FIELD_IS_REQUIRED(100106, "Field is required", HttpStatus.BAD_REQUEST)
-    ;
+    FIELD_IS_REQUIRED(100106, "Field is required", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

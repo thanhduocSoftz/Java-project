@@ -1,12 +1,13 @@
 package com.softz.identity.configuration;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 /**
  * Custom Locale Resolver, just simply check request params,

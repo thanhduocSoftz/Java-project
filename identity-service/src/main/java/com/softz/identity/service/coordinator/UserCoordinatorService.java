@@ -1,5 +1,13 @@
 package com.softz.identity.service.coordinator;
 
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.softz.identity.dto.UserDto;
 import com.softz.identity.dto.request.NewUserRequest;
 import com.softz.identity.entity.Role;
@@ -9,17 +17,11 @@ import com.softz.identity.exception.ErrorCode;
 import com.softz.identity.mapper.UserMapper;
 import com.softz.identity.service.RoleService;
 import com.softz.identity.service.UserService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -51,8 +53,7 @@ public class UserCoordinatorService {
         try {
             user.setRoles(Set.copyOf(roles));
 
-            BCryptPasswordEncoder bCryptPasswordEncoder =
-                    new BCryptPasswordEncoder(14);
+            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(14);
 
             long started = System.currentTimeMillis();
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -61,8 +62,7 @@ public class UserCoordinatorService {
 
             user = userService.create(user);
         } catch (DataIntegrityViolationException exception) {
-            ConstraintViolationException cause =
-                    (ConstraintViolationException) exception.getCause();
+            ConstraintViolationException cause = (ConstraintViolationException) exception.getCause();
             throw new AppException(ErrorCode.FIELD_EXISTED, cause.getConstraintName(), cause.getMessage());
         }
 

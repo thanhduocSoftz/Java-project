@@ -1,11 +1,13 @@
 package com.softz.identity.service;
 
+import org.springframework.stereotype.Service;
+
 import com.softz.identity.entity.InvalidatedToken;
 import com.softz.identity.repository.InvalidatedTokenRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class InvalidatedTokenService {
     InvalidatedTokenRepository invalidatedRepository;
 
-    public InvalidatedToken create(InvalidatedToken invalidatedToken){
+    public InvalidatedToken create(InvalidatedToken invalidatedToken) {
         return invalidatedRepository.save(invalidatedToken);
     }
 }
